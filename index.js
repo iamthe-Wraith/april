@@ -31,6 +31,8 @@ app.post('/github/webhook', express.json({type: 'application/json'}), async (req
     res.status(422).send('Unprocessable');
 
     console.log(`Invalid github event received: ${githubEvent}`);
+    console.log('request headers: ', req.headers);
+    console.log('request body: ', req.body);
   }
 });
 
