@@ -2,20 +2,32 @@ import express from 'express';
 
 const app = express();
 
+app.post('*', express.json({type: 'application/json'}), async (request, response) => {
+  console.log('request received at route: * ', request.url);
+
+  response.status(202).send('Accepted');
+});
+
 app.post('/', express.json({type: 'application/json'}), async (request, response) => {
-  console.log('request received at route: / ', request);
+  console.log('request received at route: / ', request.url);
 
   response.status(202).send('Accepted');
 });
 
 app.post('/webhook', express.json({type: 'application/json'}), async (request, response) => {
-  console.log('request received at route: /webhook ', request);
+  console.log('request received at route: /webhook ', request.url);
 
   response.status(202).send('Accepted');
 });
 
 app.post('//webhook', express.json({type: 'application/json'}), async (request, response) => {
-  console.log('request received at route: //webhook ', request);
+  console.log('request received at route: //webhook ', request.url);
+
+  response.status(202).send('Accepted');
+});
+
+app.post('/github/webhook', express.json({type: 'application/json'}), async (request, response) => {
+  console.log('request received at route: /github/webhook ', request.url);
 
   response.status(202).send('Accepted');
 });
