@@ -41,7 +41,7 @@ app.post('/github/webhook', express.json({type: 'application/json'}), async (req
     const githubEvent = req.headers['x-github-event'];
   
     if (githubEvent === 'workflow_run') {
-      if (req.body.action === 'completed' && req.body.workflow_run.display_title === 'deploy_app') {
+      if (req.body.action === 'completed' && req.body.workflow.name === 'Publish Docker Image') {
         res
           .status(202)
           .send('Fine, I\'ll do it. But I\'m not happy about it...and I\'m going to tell everyone you hide your own easter eggs.');
@@ -52,6 +52,7 @@ app.post('/github/webhook', express.json({type: 'application/json'}), async (req
       res.status(422).send('Unprocessable');
   
       console.log(`${githubEvent} isn't the right github event. I like telling you because I want you're happiness to go away.`);
+      console.log(req.body);
     }
   } catch (err) {
     res.status(500).send('I have no idea what I\'m doing.');
