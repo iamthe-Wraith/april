@@ -2,7 +2,7 @@ import express from 'express';
 
 const app = express();
 
-app.post('/webhook', express.json({type: 'application/json'}), (request, response) => {
+app.post('/webhook', express.json({type: 'application/json'}), async (request, response) => {
 
   response.status(202).send('Accepted');
 
@@ -28,8 +28,6 @@ app.post('/webhook', express.json({type: 'application/json'}), (request, respons
 //   }
 });
 
-const port = 3000;
-
-app.listen(port, () => {
-  console.log(`Server ready and waiting on port ${port}`);
+app.listen(process.env.PORT, () => {
+  console.log(`Server ready and waiting on port ${process.env.PORT}`);
 });
