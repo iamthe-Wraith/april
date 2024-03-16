@@ -11,7 +11,7 @@ const verify_signature = (req) => {
     .update(JSON.stringify(req.body))
     .digest("hex");
   let trusted = Buffer.from(`sha256=${signature}`, 'ascii');
-  let untrusted =  Buffer.from(req.headers.get("x-hub-signature-256"), 'ascii');
+  let untrusted =  Buffer.from(req.headers['X-Hub-Signature-256'], 'ascii');
   return crypto.timingSafeEqual(trusted, untrusted);
 };
 
@@ -24,11 +24,9 @@ app.post('/github/webhook', express.json({type: 'application/json'}), async (req
   res.status(202).send('Accepted');
 
   const githubEvent = req.headers['x-github-event'];
-  const secret = req.headers['X-Hub-Signature-256'];
 
   if (githubEvent === 'push') {
     console.log('GitHub event: ', githubEvent);
-    console.log('GitHub secret: ', secret);
   } else {
     console.log(`Invalid github event received: ${githubEvent}`);
   }
