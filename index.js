@@ -6,8 +6,10 @@ app.post('/github/webhook', express.json({type: 'application/json'}), async (req
   response.status(202).send('Accepted');
 
   const githubEvent = request.headers['x-github-event'];
+  const secret = request.headers['X-Hub-Signature-256'];
 
   console.log('GitHub event: ', githubEvent);
+  console.log('GitHub secret: ', secret);
 });
 
 // app.post('/webhook', express.json({type: 'application/json'}), async (request, response) => {
