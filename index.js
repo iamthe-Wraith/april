@@ -3,11 +3,9 @@ import * as crypto from "crypto";
 
 const app = express();
 
-const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET;
-
 const verify_signature = (req) => {
   const signature = crypto
-    .createHmac("sha256", WEBHOOK_SECRET)
+    .createHmac("sha256", process.env.WEBHOOK_SECRET)
     .update(JSON.stringify(req.body))
     .digest("hex");
   let trusted = Buffer.from(`sha256=${signature}`, 'ascii');
@@ -23,16 +21,19 @@ app.post('/github/webhook', express.json({type: 'application/json'}), async (req
 
   const githubEvent = req.headers['x-github-event'];
 
-  if (githubEvent === 'push') {
+  if (githubEvent === 'workflow_run') {
     res.status(202).send('Accepted');
 
-    // Do something with the push event
+    if (req.body.action === 'completed' && req.body.workflow_run.display_title === 'deploy_app') {
+      console.log(`Deploy app workflow completed!`);
+      console.log(`Now it's time to restart docker in project: ${process.env.APP_PATH}`);
+
+      // do something with the event
+    }
   } else {
     res.status(422).send('Unprocessable');
 
     console.log(`Invalid github event received: ${githubEvent}`);
-    console.log('request headers: ', req.headers);
-    console.log('request body: ', req.body);
   }
 });
 
