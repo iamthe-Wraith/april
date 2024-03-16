@@ -21,13 +21,15 @@ app.post('/github/webhook', express.json({type: 'application/json'}), async (req
     return;
   }
 
-  res.status(202).send('Accepted');
-
   const githubEvent = req.headers['x-github-event'];
 
   if (githubEvent === 'push') {
-    console.log('GitHub event: ', githubEvent);
+    res.status(202).send('Accepted');
+
+    // Do something with the push event
   } else {
+    res.status(422).send('Unprocessable');
+
     console.log(`Invalid github event received: ${githubEvent}`);
   }
 });
