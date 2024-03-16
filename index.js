@@ -2,14 +2,19 @@ import express from 'express';
 
 const app = express();
 
-app.post('/webhook', express.json({type: 'application/json'}), async (request, response) => {
+app.post('*', express.json({type: 'application/json'}), async (request, response) => {
+  console.log('request received: ', request);
 
   response.status(202).send('Accepted');
+});
 
-  const githubEvent = request.headers['x-github-event'];
+// app.post('/webhook', express.json({type: 'application/json'}), async (request, response) => {
+//   response.status(202).send('Accepted');
 
-  console.log('Request: ', request);
-  console.log('GitHub event: ', githubEvent);
+//   const githubEvent = request.headers['x-github-event'];
+
+//   console.log('Request: ', request);
+//   console.log('GitHub event: ', githubEvent);
 
 //   if (githubEvent === 'issues') {
 //     const data = request.body;
@@ -26,7 +31,7 @@ app.post('/webhook', express.json({type: 'application/json'}), async (request, r
 //   } else {
 //     console.log(`Unhandled event: ${githubEvent}`);
 //   }
-});
+// });
 
 app.listen(process.env.PORT, () => {
   console.log(`Server ready and waiting on port ${process.env.PORT}`);
