@@ -29,7 +29,9 @@ const execute = () => execFile(
 const getAction = (req) => {
   let action; // values: 
   
-  if (req.headers['x-github-event'] === 'workflow_run' && req.body.action === 'completed' && req.body.workflow.name === 'Publish Docker Image') {
+  if (req.headers['x-github-event'] === 'ping') {
+    action = 'ping';
+  } else if (req.headers['x-github-event'] === 'workflow_run' && req.body.action === 'completed' && req.body.workflow.name === 'Publish Docker Image') {
     action = 'deploy'
   }
 
@@ -56,6 +58,9 @@ app.post('/deploy/webhook', express.json({type: 'application/json'}), async (req
     const action = getAction(req);
 
     switch (action) {
+      case 'ping':
+        res.status(200).send('Ugh, pings are so annoying. But at least I didn\'t make any new friends.');
+        break;
       case 'deploy':
         res
           .status(202)
