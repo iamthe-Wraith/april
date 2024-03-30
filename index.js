@@ -13,11 +13,34 @@ const execute = () => execFile(
     process.env.DOCKER_PASSWORD,
   ], 
   (error, stdout, stderr) => {
-    console.log(stdout);
-    console.log(stderr);
+    let params;
+
     if (error !== null) {
-      console.log(`exec error: ${error}`);
+      params = {
+        status: 'error',
+        app: process.enc.APP_NAME,
+        message: error.message,
+      };
     }
+
+    if (stderr) {
+      params = {
+        status: 'error',
+        app: process.enc.APP_NAME,
+        message: stderr,
+      };
+    } else {
+      params = {
+        status: 'ok',
+        app: process.enc.APP_NAME,
+      };
+    }
+
+    return fetch(`${process.env.VAL_TOWN_URL}?${new URLSearchParams(params)}`, {
+      headers: {
+        Authorization: process.env.VAL_TOWN_TOKEN
+      }
+    });
   }
 );
 
