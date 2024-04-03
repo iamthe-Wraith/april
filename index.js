@@ -18,7 +18,7 @@ const execute = () => execFile(
     if (error !== null) {
       params = {
         status: 'error',
-        app: process.enc.APP_NAME,
+        app: process.env.APP_NAME,
         message: error.message,
       };
     }
@@ -26,13 +26,13 @@ const execute = () => execFile(
     if (stderr) {
       params = {
         status: 'error',
-        app: process.enc.APP_NAME,
+        app: process.env.APP_NAME,
         message: stderr,
       };
     } else {
       params = {
         status: 'ok',
-        app: process.enc.APP_NAME,
+        app: process.env.APP_NAME,
       };
     }
 
