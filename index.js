@@ -36,6 +36,9 @@ const execute = () => execFile(
       };
     }
 
+    console.log('url: ', `${process.env.VAL_TOWN_URL}?${new URLSearchParams(params)}`);
+    console.log('a: ', process.env.VAL_TOWN_TOKEN);
+
     return fetch(`${process.env.VAL_TOWN_URL}?${new URLSearchParams(params)}`, {
       headers: {
         Authorization: process.env.VAL_TOWN_TOKEN
@@ -85,16 +88,19 @@ app.post('/deploy/webhook', express.json({type: 'application/json'}), async (req
         res.status(200).send('Ugh, pings are so annoying. But at least I didn\'t make any new friends.');
         break;
       case 'deploy':
-        res
-          .status(202)
-          .send('Fine, I\'ll do it. But I\'m not happy about it...and I\'m going to tell everyone you hide your own easter eggs.');
-  
-        execute();
+        try {
+          execute();
+
+          res
+            .status(202)
+            .send('Fine, I did it. But I\'m not happy about it...and I\'m going to tell everyone you hide your own easter eggs.');
+        } catch (err) {
+          res.status(500).send('Everything is broken. I\'m broken. You\'re broken. We\'re all broken.');
+        }
         break;
       default:
         const msg = 'Yeeeah, I\'m not doing that. I like telling you because I want you\'re happiness to go away.';
         res.status(422).send(msg);
-        console.log(msg, action, req.headers, req.body);
     }
   } catch (err) {
     res.status(500).send('I have no idea what I\'m doing.');
