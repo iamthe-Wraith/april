@@ -18,6 +18,8 @@ const execute = () => new Promise((resolve, reject) => {
         let params;
   
         if (error !== null) {
+          console.log('error: ', error);
+
           params = {
             status: 'error',
             app: process.env.APP_NAME,
@@ -26,6 +28,8 @@ const execute = () => new Promise((resolve, reject) => {
         }
   
         if (stderr) {
+          console.log('stderr', stderr);
+
           params = {
             status: 'error',
             app: process.env.APP_NAME,
@@ -38,18 +42,19 @@ const execute = () => new Promise((resolve, reject) => {
           };
         }
   
-        console.log('u: ', `${process.env.VAL_TOWN_URL}?${new URLSearchParams(params)}`);
-        console.log('p: ', process.env.VAL_TOWN_TOKEN);
-  
         const res = await fetch(`${process.env.VAL_TOWN_URL}?${new URLSearchParams(params)}`, {
           headers: {
             Authorization: process.env.VAL_TOWN_TOKEN
           }
         });
 
-        console.log('res: ', await res.json());
-
-        resolve();
+        if (res.ok) {
+          console.log('res: ', await res.json());
+          resolve();
+        } else {
+          console.log(await res.text());
+          reject(new Error('The deployment email failed to send.'));
+        }
       } catch (err) {
         reject(err);
       }
