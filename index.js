@@ -4,45 +4,58 @@ import { execFile } from 'child_process';
 
 const app = express();
 
-const execute = () => execFile(
-  `bash`, 
-  [
-    'deploy.sh',
-    process.env.APP_PATH,
-    process.env.DOCKER_USERNAME,
-    process.env.DOCKER_PASSWORD,
-  ], 
-  (error, stdout, stderr) => {
-    let params;
+const execute = () => new Promise((resolve, reject) => {
+  execFile(
+    `bash`, 
+    [
+      'deploy.sh',
+      process.env.APP_PATH,
+      process.env.DOCKER_USERNAME,
+      process.env.DOCKER_PASSWORD,
+    ], 
+    async (error, stdout, stderr) => {
+      try {
+        let params;
+  
+        if (error !== null) {
+          params = {
+            status: 'error',
+            app: process.env.APP_NAME,
+            message: error.message,
+          };
+        }
+  
+        if (stderr) {
+          params = {
+            status: 'error',
+            app: process.env.APP_NAME,
+            message: stderr,
+          };
+        } else {
+          params = {
+            status: 'ok',
+            app: process.env.APP_NAME,
+          };
+        }
+  
+        console.log('u: ', `${process.env.VAL_TOWN_URL}?${new URLSearchParams(params)}`);
+        console.log('p: ', process.env.VAL_TOWN_TOKEN);
+  
+        const res = await fetch(`${process.env.VAL_TOWN_URL}?${new URLSearchParams(params)}`, {
+          headers: {
+            Authorization: process.env.VAL_TOWN_TOKEN
+          }
+        });
 
-    if (error !== null) {
-      params = {
-        status: 'error',
-        app: process.env.APP_NAME,
-        message: error.message,
-      };
-    }
+        console.log('res: ', await res.json());
 
-    if (stderr) {
-      params = {
-        status: 'error',
-        app: process.env.APP_NAME,
-        message: stderr,
-      };
-    } else {
-      params = {
-        status: 'ok',
-        app: process.env.APP_NAME,
-      };
-    }
-
-    return fetch(`${process.env.VAL_TOWN_URL}?${new URLSearchParams(params)}`, {
-      headers: {
-        Authorization: process.env.VAL_TOWN_TOKEN
+        resolve();
+      } catch (err) {
+        reject(err);
       }
-    });
-  }
-);
+    }
+  )
+});
 
 /**
  * this function is dependent on the structure of the github webhook event,
@@ -85,16 +98,21 @@ app.post('/deploy/webhook', express.json({type: 'application/json'}), async (req
         res.status(200).send('Ugh, pings are so annoying. But at least I didn\'t make any new friends.');
         break;
       case 'deploy':
-        res
-          .status(202)
-          .send('Fine, I\'ll do it. But I\'m not happy about it...and I\'m going to tell everyone you hide your own easter eggs.');
+        try {
+          execute();
+
+          res
+            .status(202)
+            .send('Fine, I\'ll do it. But I\'m not happy about it...and I\'m going to tell everyone you hide your own easter eggs.');
+        } catch (err) {
+          res.status(500).send('Everything is broken. I\'m broken. You\'re broken. We\'re all broken.');
+          console.log(err);
+        }
   
-        execute();
         break;
       default:
         const msg = 'Yeeeah, I\'m not doing that. I like telling you because I want you\'re happiness to go away.';
         res.status(422).send(msg);
-        console.log(msg, action, req.headers, req.body);
     }
   } catch (err) {
     res.status(500).send('I have no idea what I\'m doing.');
